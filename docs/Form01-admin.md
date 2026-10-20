@@ -39,6 +39,31 @@ deleted/renamed SKUs cannot be attributed to current inventory. Reload data
 refreshes both stock and orders. A full historical analytics endpoint is needed
 before interpreting these figures as store-wide trends.
 
+## Coupons
+
+The Coupons navigation section manages real database-backed offers in Live API
+mode. Create or select an offer, edit its code, percentage/fixed-INR discount,
+optional maximum discount, minimum subtotal, start/end dates, total/per-customer
+limits, and enabled state. Save persists through `/admin/coupons`; disable an
+offer instead of deleting its redemption history. Date inputs use the admin's
+local timezone and are sent as UTC timestamps.
+
+Select a saved offer and choose Archive coupon, then Confirm archive (or Cancel).
+Archiving hides it from the list and prevents new use while keeping order and
+redemption history, including pending payment discounts. Codes cannot be reused.
+An end date automatically blocks new use when reached; expired records stay
+visible until archived. Deploy middleware migration `b9c2345d6e77` first.
+
+Money inputs are rupees and convert to integer paise; percentage inputs are
+whole percentages. Example: 10% with maximum INR 100 saves `value: 10` and
+`max_discount_minor: 10000`. One coupon per order, all products. At least INR 1
+remains payable. Pending orders reserve usage; failure/expiry/cancellation
+releases it; successful/refunded uses remain counted. Existing pending orders
+retain their price snapshot when rules change. Demo mode cannot save coupons.
+
+Deploy the middleware coupon migration before this UI and test in Razorpay Test
+mode. API failures appear explicitly and offers are never simulated as saved.
+
 ## Category artwork
 
 Homepage now has a visual Carousel slides editor with headline, eyebrow,
